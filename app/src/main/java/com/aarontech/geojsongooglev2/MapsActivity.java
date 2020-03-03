@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.data.geojson.GeoJsonLayer;
+import com.google.maps.android.data.geojson.GeoJsonPointStyle;
 
 import org.json.JSONException;
 
@@ -21,7 +22,7 @@ import java.io.IOException;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    GoogleMap mMap;
     private static final String LOG_TAG = MapsActivity.class.getSimpleName();
 
 
@@ -34,31 +35,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+    private static final LatLng DENVER = new LatLng(39.742043, -104.991531);
+    private static final LatLng MOUNTAIN_VIEW = new LatLng(39.6, -104.8);
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        boolean nightStyle = mMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
-        if(!nightStyle){
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10), 9000, null);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(DENVER, 12));
+
+        boolean dayStyle = mMap.setMapStyle(new MapStyleOptions(getResources().getString(R.string.style_json)));
+        if(!dayStyle){
             Log.e(LOG_TAG, "Styling Error");
         }
-
-        // Add a marker in Denver and move the camera
-        LatLng denver = new LatLng(39.742043, -104.991531);
-        mMap.addMarker(new MarkerOptions().position(denver).title("Marker Denver"));
-        mMap.getCameraPosition();
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(denver));
-
 
         //Denver Neighborhood Boundries GeoJson Layer
         GeoJsonLayer denverNeighborhoodBoundries = null;
@@ -71,7 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         denverNeighborhoodBoundries.addLayerToMap();
 
-        //Denver Policy Shooting Point GoeJson Layer here
+        //Denver Police Shooting Point GeoJson Layer here
         GeoJsonLayer policeShootings= null;
         try{
             policeShootings = new GeoJsonLayer(mMap, R.raw.denver_police_officer_involved_shootings, this);
@@ -81,5 +70,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
         policeShootings.addLayerToMap();
+
+        //Denver Crime Point GeoJson Layer here - this is commented out for the moment because the volume of points
+      /*  GeoJsonLayer denverCrime = null;
+        try {
+            denverCrime = new GeoJsonLayer(mMap, R.raw.denver_crime_data, this);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        denverCrime.addLayerToMap();
+*/
     }
+
+
+
+
+
 }
+
+
